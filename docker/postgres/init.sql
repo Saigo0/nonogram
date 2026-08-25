@@ -22,3 +22,17 @@ CREATE TABLE results (
         FOREIGN KEY (puzzle_id)
         REFERENCES puzzles(id)
 );
+
+INSERT INTO puzzles (size, row_clues, col_clues) 
+VALUES (
+    5, 
+    '[[1, 1], [3], [1, 1], [3], [1]]', 
+    '[[1], [3], [1, 2], [3], [1]]'
+);
+
+INSERT INTO puzzles (size, row_clues, col_clues) 
+VALUES (
+    5, 
+    '[[5], [1, 1], [1, 1], [1, 1], [5]]', 
+    '[[5], [1, 1], [1, 1], [1, 1], [5]]'
+);
