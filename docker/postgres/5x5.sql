@@ -1,4 +1,4 @@
-5x5
+
 
 INSERT INTO puzzles (size, row_clues, col_clues)
 VALUES (

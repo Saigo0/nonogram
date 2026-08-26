@@ -5,7 +5,7 @@ dotenv.config({
     path: ".env.local"
 });
 
-const connectionString = process.env.DATABASE_URL;
+const connectionString = "postgresql://postgres:Saigo2707@@127.0.0.1:5433/postgres";
 
 if (!connectionString) {
     throw new Error(

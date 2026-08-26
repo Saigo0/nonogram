@@ -1,5 +1,3 @@
-20x20
-
 INSERT INTO puzzles (size, row_clues, col_clues)
 VALUES (
     20,
