@@ -79,6 +79,8 @@ export default function NonogramPage() {
 
     if (updated) {
       setGrid([...puzzleInstance.table.map(r => [...r])]);
+      console.log("Checando vitória...");
+      console.log("Está resolvido?", puzzleInstance.isSolved());
       checkWinCondition();
     }
   };

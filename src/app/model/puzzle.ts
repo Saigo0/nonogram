@@ -175,18 +175,17 @@ export class Puzzle {
     ): boolean {
         const blocks = this.getBlocks(line);
 
-        let clueIndex = 0;
+        // Regra 1: O jogador não pode pintar mais células do que o total exigido pelas dicas
+        const totalFilled = blocks.reduce((acc, val) => acc + val, 0);
+        const totalRequired = clues.reduce((acc, val) => acc + val, 0);
+        if (totalFilled > totalRequired) {
+            return false;
+        }
 
-        for (const block of blocks) {
-            if (clueIndex >= clues.length) {
-                return false;
-            }
-
-            if (block > clues[clueIndex]) {
-                return false;
-            }
-
-            clueIndex++;
+        // Regra 2: Nenhum bloco isolado pode ser MAIOR que a maior dica disponível
+        const maxClue = clues.length > 0 ? Math.max(...clues) : 0;
+        if (blocks.some(block => block > maxClue)) {
+            return false;
         }
 
         /*
