@@ -6,6 +6,7 @@ import { NonogramSolver } from '../model/NonogramSolver';
 import { AsyncNonogramSolver } from '../model/AsyncNonogramSolver';
 import VictoryModal from '../../components/VictoryModal';
 import Board from '../../components/Board';
+import HistoryModal from '../../components/HistoryModal';
 
 export default function NonogramPage() {
   const [puzzleInstance, setPuzzleInstance] = useState(null);
@@ -16,6 +17,25 @@ export default function NonogramPage() {
   const [isAutoSolving, setIsAutoSolving] = useState(false);
   const [matchResult, setMatchResult] = useState(null); 
 
+  const [showHistory, setShowHistory] = useState(false);
+  const [historyData, setHistoryData] = useState([]);
+
+  const handleOpenHistory = () => {
+    try {
+      const existingData = localStorage.getItem('nonogram_history');
+      if (existingData) {
+        // Inverte o array para mostrar as partidas mais recentes no topo
+        const parsed = JSON.parse(existingData);
+        setHistoryData(parsed.reverse()); 
+      } else {
+        setHistoryData([]);
+      }
+      setShowHistory(true);
+    } catch (error) {
+      console.error("Erro ao ler histórico", error);
+      setHistoryData([]);
+    }
+  };
   const availableSizes = [5, 10, 15, 20, 25];
 
   const loadPuzzle = async (size) => {
@@ -45,13 +65,35 @@ export default function NonogramPage() {
     }
   };
 
+  const saveToLocalHistory = (resultData) => {
+    try {
+      const existingData = localStorage.getItem('nonogram_history');
+      
+      const history = existingData ? JSON.parse(existingData) : [];
+      
+      const newEntry = {
+        ...resultData,
+        date: new Date().toLocaleDateString('pt-BR')
+      };
+      history.push(newEntry);
+      
+      localStorage.setItem('nonogram_history', JSON.stringify(history));
+      
+      console.log("Histórico salvo no navegador!", history);
+    } catch (error) {
+      console.error("Erro ao salvar no localStorage", error);
+    }
+  };
+
   const checkWinCondition = () => {
     if (puzzleInstance.isSolved()) {
       puzzleInstance.finish();
+
       const finalResult = Result.fromPuzzle('Jogador Web', puzzleInstance);
       
       setMatchResult(finalResult);
       setIsSolved(true);
+      saveToLocalHistory(finalResult);
 
       fetch('/api/puzzle', {
         method: 'POST',
@@ -160,10 +202,19 @@ export default function NonogramPage() {
   if (!puzzleInstance) {
     return (
       <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center p-4 select-none">
+        
+        {showHistory && (
+          <HistoryModal 
+            history={historyData} 
+            onClose={() => setShowHistory(false)} 
+          />
+        )}
+
         <h1 className="text-5xl font-extrabold mb-10 text-gray-800 tracking-tight">Nonogram</h1>
         <div className="bg-white p-10 rounded-2xl shadow-xl text-center max-w-lg w-full transform animate-fade-in-up">
           <h2 className="text-2xl font-bold text-gray-700 mb-8">Escolha a dificuldade</h2>
-          <div className="flex flex-wrap justify-center gap-4">
+          
+          <div className="flex flex-wrap justify-center gap-4 mb-8">
             {availableSizes.map(size => (
               <button
                 key={size}
@@ -174,6 +225,16 @@ export default function NonogramPage() {
               </button>
             ))}
           </div>
+
+          <div className="border-t border-gray-200 pt-6">
+            <button 
+              onClick={handleOpenHistory}
+              className="px-6 py-2 bg-blue-100 hover:bg-blue-200 text-blue-800 font-bold rounded-lg transition-colors flex items-center justify-center w-full"
+            >
+              📊 Ver Meus Recordes
+            </button>
+          </div>
+
         </div>
       </div>
     );
