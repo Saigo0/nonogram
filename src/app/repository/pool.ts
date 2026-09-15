@@ -5,7 +5,7 @@ dotenv.config({
     path: ".env.local"
 });
 
-const connectionString = "postgresql://postgres:Saigo2707@@127.0.0.1:5433/postgres";
+const connectionString = "postgresql://joanthan:DTtprGrX4iNrakJqJVR80AScFcnwfvQw@dpg-daks5u2jnfac73folcsg-a:5432/nonogram_db_utav";
 
 if (!connectionString) {
     throw new Error(
