@@ -5,7 +5,7 @@
   "scripts": {
     "db:reset": "node scripts/reset-database.js",
     "dev": "npm run db:reset && next dev",
-    "build": "next build",
+    "build": "npm run db:reset && next build",
     "start": "npm run db:reset && next start",
     "lint": "eslint",
     "test:puzzle": "npx tsx src/app/test.ts"

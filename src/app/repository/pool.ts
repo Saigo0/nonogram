@@ -3,11 +3,18 @@ import path from "node:path";
 import Database from "better-sqlite3";
 
 const dataDirectory = path.join(process.cwd(), "data");
-const databasePath = path.join(dataDirectory, "nonogram.sqlite");
+const bundledDatabasePath = path.join(dataDirectory, "nonogram.sqlite");
+const runtimeDatabasePath = process.env.VERCEL
+    ? path.join("/tmp", "nonogram.sqlite")
+    : bundledDatabasePath;
+
+if (process.env.VERCEL && !fs.existsSync(runtimeDatabasePath)) {
+    fs.copyFileSync(bundledDatabasePath, runtimeDatabasePath);
+}
 
 fs.mkdirSync(dataDirectory, { recursive: true });
 
-const database = new Database(databasePath);
+const database = new Database(runtimeDatabasePath);
 database.pragma("foreign_keys = ON");
 
 database.exec(`
