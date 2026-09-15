@@ -29,22 +29,6 @@ database.exec(`
     );
 `);
 
-if (database.prepare("SELECT COUNT(*) AS count FROM puzzles").get().count === 0) {
-    const puzzleDirectory = path.join(process.cwd(), "docker", "sqlite");
-    const puzzleFiles = ["5x5.sql", "10x10.sql", "15x15.sql", "20x20.sql", "25x25.sql"];
-
-    const seed = database.transaction(() => {
-        for (const fileName of puzzleFiles) {
-            const filePath = path.join(puzzleDirectory, fileName);
-            if (fs.existsSync(filePath)) {
-                database.exec(fs.readFileSync(filePath, "utf8"));
-            }
-        }
-    });
-
-    seed();
-}
-
 export const pool = {
     query(query: string, values: unknown[] = []) {
         const statement = database.prepare(query);

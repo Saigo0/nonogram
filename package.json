@@ -3,9 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "db:reset": "node scripts/reset-database.js",
+    "dev": "npm run db:reset && next dev",
     "build": "next build",
-    "start": "next start",
+    "start": "npm run db:reset && next start",
     "lint": "eslint",
     "test:puzzle": "npx tsx src/app/test.ts"
   },
