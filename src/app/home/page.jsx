@@ -6,7 +6,7 @@ import { NonogramSolver } from '../model/NonogramSolver';
 import { AsyncNonogramSolver } from '../model/AsyncNonogramSolver';
 import VictoryModal from '../../components/VictoryModal';
 import Board from '../../components/Board';
-import HistoryModal from '../components/HistoryModal';
+import HistoryModal from '../../components/HistoryModal';
 
 export default function NonogramPage() {
   const [puzzleInstance, setPuzzleInstance] = useState(null);
