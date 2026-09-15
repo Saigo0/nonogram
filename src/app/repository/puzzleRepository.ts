@@ -1,6 +1,10 @@
 import { pool } from "./pool";
 import { Puzzle } from "../model/puzzle";
 
+function parseClues(clues: number[][] | string): number[][] {
+    return typeof clues === "string" ? JSON.parse(clues) : clues;
+}
+
 export class PuzzleRepository {
 
     async findById(id: number): Promise<Puzzle | null> {
@@ -13,7 +17,7 @@ export class PuzzleRepository {
                 row_clues,
                 col_clues
             FROM puzzles
-            WHERE id = $1
+            WHERE id = ?
             `,
             [id]
         );
@@ -27,8 +31,8 @@ export class PuzzleRepository {
         return new Puzzle(
             row.id,
             row.size,
-            row.row_clues,
-            row.col_clues
+            parseClues(row.row_clues),
+            parseClues(row.col_clues)
         );
     }
     
@@ -42,7 +46,7 @@ export class PuzzleRepository {
                 row_clues,
                 col_clues
             FROM puzzles
-            WHERE size = $1
+            WHERE size = ?
             ORDER BY RANDOM()
             LIMIT 1
             `,
@@ -58,8 +62,8 @@ export class PuzzleRepository {
         return new Puzzle(
             row.id,
             row.size,
-            row.row_clues,
-            row.col_clues
+            parseClues(row.row_clues),
+            parseClues(row.col_clues)
         );
     }
 }

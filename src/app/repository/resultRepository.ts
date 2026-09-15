@@ -16,7 +16,7 @@ export class ResultRepository {
                 wrong_actions,
                 actions_per_minute
             )
-            VALUES ($1, $2, $3, $4, $5)
+            VALUES (?, ?, ?, ?, ?)
             RETURNING
                 id,
                 player,
@@ -54,7 +54,7 @@ export class ResultRepository {
                 wrong_actions,
                 actions_per_minute
             FROM results
-            WHERE id = $1
+            WHERE id = ?
         `;
 
         const response = await pool.query(query, [id]);
@@ -79,7 +79,7 @@ export class ResultRepository {
                 wrong_actions,
                 actions_per_minute
             FROM results
-            WHERE puzzle_id = $1
+            WHERE puzzle_id = ?
             ORDER BY duration_seconds ASC
         `;
 
@@ -107,7 +107,7 @@ export class ResultRepository {
                 actions_per_minute
             FROM results
             ORDER BY duration_seconds ASC
-            LIMIT $1
+            LIMIT ?
         `;
 
         const response = await pool.query(

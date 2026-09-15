@@ -1,22 +1,15 @@
 services:
 
-  postgres:
-    image: postgres:17
-    container_name: nonogram-postgres
-
-    environment:
-      POSTGRES_DB: postgres
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: nonogram-app
     ports:
-      - "5433:5432"
-
+      - "3000:3000"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
-      - ./docker/postgres:/docker-entrypoint-initdb.d
-
+      - nonogram_data:/app/data
     restart: unless-stopped
 
 volumes:
-  postgres_data:
+  nonogram_data:
