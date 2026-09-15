@@ -1,19 +1,24 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { Puzzle } from '../model/puzzle';
-import VictoryModal from '../../components/VictoryModal';
-import Board from '../../components/Board';
+import { Result } from '../model/result';
 import { NonogramSolver } from '../model/NonogramSolver';
 import { AsyncNonogramSolver } from '../model/AsyncNonogramSolver';
+import VictoryModal from '../../components/VictoryModal';
+import Board from '../../components/Board';
 
 export default function NonogramPage() {
   const [puzzleInstance, setPuzzleInstance] = useState(null);
   const [grid, setGrid] = useState([]);
   const [isSolved, setIsSolved] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
+  
   const [isAutoSolving, setIsAutoSolving] = useState(false);
+  const [matchResult, setMatchResult] = useState(null); 
 
-  const loadPuzzle = async (size = 5) => {
+  const availableSizes = [5, 10, 15, 20, 25];
+
+  const loadPuzzle = async (size) => {
     setIsLoading(true);
     try {
       const response = await fetch(`/api/puzzle?size=${size}`, { cache: 'no-store' });
@@ -30,36 +35,33 @@ export default function NonogramPage() {
       
       setPuzzleInstance(game);
       setGrid(game.table);
+      
       setIsSolved(false);
+      setMatchResult(null); 
     } catch (error) {
-      console.error("Falha ao carregar o tabuleiro", error);
+      console.error("Falha ao carregar", error);
     } finally {
       setIsLoading(false);
     }
   };
 
-  useEffect(() => {
-    loadPuzzle(5);
-  }, []);
-
   const checkWinCondition = () => {
     if (puzzleInstance.isSolved()) {
       puzzleInstance.finish();
-      setIsSolved(true);
+      const finalResult = Result.fromPuzzle('Jogador Web', puzzleInstance);
       
-      const duration = puzzleInstance.getElapsedTime();
-      const minutes = duration / 60;
-      const apm = minutes > 0 ? puzzleInstance.actions / minutes : puzzleInstance.actions;
+      setMatchResult(finalResult);
+      setIsSolved(true);
 
       fetch('/api/puzzle', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           puzzleId: puzzleInstance.id,
-          player: 'Jogador Web', 
-          durationSeconds: duration,
-          wrongActions: puzzleInstance.wrongActions,
-          actionsPerMinute: Number(apm.toFixed(3))
+          player: finalResult.player,
+          durationSeconds: finalResult.durationSeconds,
+          wrongActions: finalResult.wrongActions,
+          actionsPerMinute: finalResult.actionsPerMinute
         })
       });
     }
@@ -146,44 +148,69 @@ export default function NonogramPage() {
     setIsAutoSolving(false);
   };
   
-  if (isLoading || !puzzleInstance) {
-    return <div className="min-h-screen flex items-center justify-center text-xl font-bold">Carregando tabuleiro...</div>;
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100">
+        <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-gray-800 mb-4"></div>
+        <p className="text-xl font-bold text-gray-800">Carregando tabuleiro...</p>
+      </div>
+    );
+  }
+
+  if (!puzzleInstance) {
+    return (
+      <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center p-4 select-none">
+        <h1 className="text-5xl font-extrabold mb-10 text-gray-800 tracking-tight">Nonogram</h1>
+        <div className="bg-white p-10 rounded-2xl shadow-xl text-center max-w-lg w-full transform animate-fade-in-up">
+          <h2 className="text-2xl font-bold text-gray-700 mb-8">Escolha a dificuldade</h2>
+          <div className="flex flex-wrap justify-center gap-4">
+            {availableSizes.map(size => (
+              <button
+                key={size}
+                onClick={() => loadPuzzle(size)}
+                className="px-6 py-3 bg-gray-800 hover:bg-black text-white font-bold text-lg rounded-lg shadow-md transition-transform transform hover:scale-105 active:scale-95"
+              >
+                {size}x{size}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center p-4 select-none">
-      <h1 className="text-3xl font-bold mb-8 text-gray-800">Nonogram</h1>
-
-        <div className="flex gap-4 mb-8">
-          <button 
-            onClick={handleHint}
-            disabled={isAutoSolving || isSolved}
-            className="px-6 py-2 bg-yellow-400 hover:bg-yellow-500 text-yellow-900 font-bold rounded-lg shadow disabled:opacity-50 transition-colors"
-          >
-            💡 Pedir Dica
-          </button>
-
-          <button 
-            onClick={handleAutoSolve}
-            disabled={isAutoSolving || isSolved}
-            className="px-6 py-2 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-lg shadow disabled:opacity-50 flex items-center transition-colors"
-          >
-            {isAutoSolving ? (
-              <span className="animate-pulse">🤖 Resolvendo...</span>
-            ) : (
-              <span>🤖 Auto-Resolver</span>
-            )}
-          </button>
-        </div>
+      <h1 className="text-3xl font-bold mb-4 text-gray-800">Nonogram</h1>
       
-      {isSolved && (
+      <div className="flex gap-4 mb-8">
+        <button 
+          onClick={handleHint}
+          disabled={isAutoSolving || isSolved}
+          className="px-6 py-2 bg-yellow-400 hover:bg-yellow-500 text-yellow-900 font-bold rounded-lg shadow disabled:opacity-50 transition-colors"
+        >
+          💡 Pedir Dica
+        </button>
+
+        <button 
+          onClick={handleAutoSolve}
+          disabled={isAutoSolving || isSolved}
+          className="px-6 py-2 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-lg shadow disabled:opacity-50 flex items-center transition-colors"
+        >
+          {isAutoSolving ? (
+            <span className="animate-pulse">🤖 Resolvendo...</span>
+          ) : (
+            <span>🤖 Auto-Resolver</span>
+          )}
+        </button>
+      </div>
+
+      {isSolved && matchResult && (
         <VictoryModal 
-          time={puzzleInstance.getElapsedTime()} 
-          wrongActions={puzzleInstance.wrongActions} 
+          result={matchResult} 
           onSelectSize={loadPuzzle} 
         />
       )}
-
       <Board 
         puzzleInstance={puzzleInstance} 
         grid={grid} 
