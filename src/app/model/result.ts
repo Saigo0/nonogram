@@ -7,6 +7,7 @@ export class Result {
         public durationSeconds: number,
         public wrongActions: number,
         public actionsPerMinute: number,
+        public avgActionTimeSeconds: number,
         public id?: number
     ) {}
 
@@ -26,11 +27,14 @@ export class Result {
                 ? puzzle.actions / minutes
                 : puzzle.actions;
 
+        const avgActionTime = puzzle.getAverageActionTime();
+
         return new Result(
             player,
             durationSeconds,
             puzzle.wrongActions,
-            Number(actionsPerMinute.toFixed(3))
+            Number(actionsPerMinute.toFixed(3)),
+            avgActionTime
         );
     }
 }

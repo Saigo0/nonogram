@@ -23,6 +23,10 @@ export default function VictoryModal({ result, onSelectSize }) {
             <span>APM (Ações/Min):</span>
             <span className="font-bold text-blue-600">{result.actionsPerMinute}</span>
           </p>
+          <p className="text-gray-600 text-lg flex justify-between pt-1">
+            <span>Ritmo (Tempo/Ação):</span>
+            <span className="font-bold text-purple-600">{result.avgActionTimeSeconds}s</span>
+          </p>
         </div>
         
         <div className="w-full h-px bg-gray-200 mb-6"></div>

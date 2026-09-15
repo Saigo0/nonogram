@@ -10,6 +10,9 @@ export class Puzzle {
     startTime: number | null;
     finishTime: number | null;
 
+    lastActionTime: number | null;
+    totalIntervalTimeMs = 0;
+
     actions: number;
     wrongActions: number;
 
@@ -21,6 +24,9 @@ export class Puzzle {
     ) {
         this.id = id;
         this.size = size;
+
+        this.lastActionTime = null;
+        this.totalIntervalTimeMs = 0;
 
         this.rowClues = rowClues;
         this.colClues = colClues;
@@ -48,6 +54,10 @@ export class Puzzle {
         this.actions = 0;
         this.wrongActions = 0;
 
+        this.lastActionTime = this.startTime;
+
+        this.totalIntervalTimeMs = 0;
+
         this.table = this.createEmptyTable();
     }
 
@@ -67,11 +77,25 @@ export class Puzzle {
         this.table[row][col] = value;
         this.actions++;
 
+        const now = Date.now();
+        if(this.lastActionTime){
+            this.totalIntervalTimeMs += (now - this.lastActionTime);
+        }
+
+        this.lastActionTime = now;
+
         if (this.isCellWrong(row, col)) {
             this.wrongActions++;
         }
 
         return true;
+    }
+
+    getAverageActionTime(): number {
+        if(this.actions === 0) return 0;
+
+        const avgMs = this.totalIntervalTimeMs / this.actions;
+        return Number((avgMs / 1000).toFixed(2));
     }
 
     isSolved(): boolean {

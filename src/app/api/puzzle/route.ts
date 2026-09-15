@@ -32,11 +32,11 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { puzzleId, player, durationSeconds, wrongActions, actionsPerMinute } = body;
+    const { puzzleId, player, durationSeconds, wrongActions, actionsPerMinute, avgActionTimeSeconds } = body;
 
     const resultRepo = new ResultRepository();
     
-    const resultObj = new Result(player, durationSeconds, wrongActions, actionsPerMinute);
+    const resultObj = new Result(player, durationSeconds, wrongActions, actionsPerMinute, avgActionTimeSeconds);
     
     const savedResult = await resultRepo.save(puzzleId, resultObj);
 
